@@ -1,0 +1,107 @@
+#Opdracht 1
+select name from language order by name asc;
+
+#Opdracht 2
+select first_name, last_name from actor WHERE last_name LIKE '%SON' ORDER BY first_name ASC;
+
+#Opdracht 3
+select address.address, city.city from address JOIN city ON address.city_id = city.city_id WHERE district = "" ORDER BY city.city ASC;
+
+#Opdracht 4
+select category.name, count(film_category.category_id) as 'nr of films' FROM film_category JOIN category ON category.category_id = film_category.category_id GROUP BY film_category.category_id ORDER BY count(film_category.category_id) ASC;
+
+#Opdracht 5
+select category.name, round(abs(avg(film.replacement_cost)-avg(film.rental_rate)), 1) as difference FROM film_category JOIN category ON category.category_id = film_category.category_id JOIN film ON film.film_id = film_category.film_id GROUP BY film_category.category_id HAVING difference > 17 ORDER BY difference ASC;
+
+#Opdracht 6
+SELECT actor_id, first_name, last_name, count(actor_id) as nr FROM actor JOIN film_actor USING(actor_id) JOIN film USING(film_id) JOIN film_category USING (film_id) JOIN category USING (category_id) WHERE category.name LIKE "Horror" OR "Sci-fi" GROUP BY actor_id ORDER BY nr DESC;
+
+#Opdracht 7 
+SELECT concat(last_name, ", ", first_name), address.phone, film.title FROM rental
+	JOIN customer USING(customer_id)
+    JOIN address USING(address_id)
+    JOIN inventory USING(inventory_id)
+    JOIN film USING (film_id)
+		WHERE (return_date - now()) < 0;
+        
+#Opdracht 8
+#INSERT INTO actor (first_name, last_name, last_update) VALUES ("Lutzen", "Hoeksma", now());
+SELECT first_name, last_name FROM actor WHERE actor.actor_id NOT IN(SELECT DISTINCT actor_id FROM film_actor) LIMIT 1000,200;
+
+#Opdracht 9
+SELECT count(*) as `Amount` FROM film WHERE film.film_id NOT IN(SELECT DISTINCT inventory.film_id FROM inventory);
+
+#Opdracht 10
+#Opdracht 1
+select name from language order by name asc;
+
+#Opdracht 2
+select first_name, last_name from actor WHERE last_name LIKE '%SON' ORDER BY first_name ASC;
+
+#Opdracht 3
+select address.address, city.city from address JOIN city ON address.city_id = city.city_id WHERE district = "" ORDER BY city.city ASC;
+
+#Opdracht 4
+select category.name, count(film_category.category_id) as 'nr of films' FROM film_category JOIN category ON category.category_id = film_category.category_id GROUP BY film_category.category_id ORDER BY count(film_category.category_id) ASC;
+
+#Opdracht 5
+select category.name, round(abs(avg(film.replacement_cost)-avg(film.rental_rate)), 1) as difference FROM film_category JOIN category ON category.category_id = film_category.category_id JOIN film ON film.film_id = film_category.film_id GROUP BY film_category.category_id HAVING difference > 17 ORDER BY difference ASC;
+
+#Opdracht 6
+SELECT actor_id, first_name, last_name, count(actor_id) as nr FROM actor JOIN film_actor USING(actor_id) JOIN film USING(film_id) JOIN film_category USING (film_id) JOIN category USING (category_id) WHERE category.name LIKE "Horror" OR "Sci-fi" GROUP BY actor_id ORDER BY nr DESC;
+
+#Opdracht 7 
+SELECT concat(last_name, ", ", first_name), address.phone, film.title FROM rental
+	JOIN customer USING(customer_id)
+    JOIN address USING(address_id)
+    JOIN inventory USING(inventory_id)
+    JOIN film USING (film_id)
+		WHERE (return_date - now()) < 0;
+        
+#Opdracht 8
+#INSERT INTO actor (first_name, last_name, last_update) VALUES ("Lutzen", "Hoeksma", now());
+SELECT first_name, last_name FROM actor WHERE actor.actor_id NOT IN(SELECT DISTINCT actor_id FROM film_actor) LIMIT 1000,200;
+
+#Opdracht 9
+SELECT count(*) as `Amount` FROM film WHERE film.film_id NOT IN(SELECT DISTINCT inventory.film_id FROM inventory);
+
+#Opdracht 10
+#Opdracht 1
+select name from language order by name asc;
+
+#Opdracht 2
+select first_name, last_name from actor WHERE last_name LIKE '%SON' ORDER BY first_name ASC;
+
+#Opdracht 3
+select address.address, city.city from address JOIN city ON address.city_id = city.city_id WHERE district = "" ORDER BY city.city ASC;
+
+#Opdracht 4
+select category.name, count(film_category.category_id) as 'nr of films' FROM film_category JOIN category ON category.category_id = film_category.category_id GROUP BY film_category.category_id ORDER BY count(film_category.category_id) ASC;
+
+#Opdracht 5
+select category.name, round(abs(avg(film.replacement_cost)-avg(film.rental_rate)), 1) as difference FROM film_category JOIN category ON category.category_id = film_category.category_id JOIN film ON film.film_id = film_category.film_id GROUP BY film_category.category_id HAVING difference > 17 ORDER BY difference ASC;
+
+#Opdracht 6
+SELECT actor_id, first_name, last_name, count(actor_id) as nr FROM actor JOIN film_actor USING(actor_id) JOIN film USING(film_id) JOIN film_category USING (film_id) JOIN category USING (category_id) WHERE category.name LIKE "Horror" OR "Sci-fi" GROUP BY actor_id ORDER BY nr DESC;
+
+#Opdracht 7 
+SELECT concat(last_name, ", ", first_name), address.phone, film.title FROM rental
+	JOIN customer USING(customer_id)
+    JOIN address USING(address_id)
+    JOIN inventory USING(inventory_id)
+    JOIN film USING (film_id)
+		WHERE (return_date - now()) < 0;
+        
+#Opdracht 8
+#INSERT INTO actor (first_name, last_name, last_update) VALUES ("Lutzen", "Hoeksma", now());
+SELECT first_name, last_name FROM actor WHERE actor.actor_id NOT IN(SELECT DISTINCT actor_id FROM film_actor) LIMIT 1000,200;
+
+#Opdracht 9
+SELECT count(*) as `Amount` FROM film WHERE film.film_id NOT IN(SELECT DISTINCT inventory.film_id FROM inventory);
+
+#Opdracht 10
+SELECT category.name, round(avg(length)) as average FROM film 
+	JOIN film_category USING(film_id) 
+	JOIN category USING(category_id) 
+		GROUP BY category.name
+			HAVING average > (SELECT round(avg(length)) FROM film) 

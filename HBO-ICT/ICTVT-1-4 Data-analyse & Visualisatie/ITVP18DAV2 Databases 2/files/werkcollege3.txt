@@ -1,0 +1,98 @@
+# Week 3
+# Opdracht 1
+CREATE VIEW view_total_sales
+    as SELECT city.city, country.country, round(sum(amount), 0) as `total sales` FROM payment
+        JOIN rental USING(rental_id)
+        JOIN inventory USING(inventory_id)
+        JOIN store USING(store_id)
+        JOIN address USING(address_id)
+        JOIN city USING(city_id)
+        JOIN country USING(country_id)
+            GROUP BY city.city;
+    
+# Opdracht 2
+a)  SHOW index FROM city;
+    SHOW index FROM country;
+    SHOW index FROM countrylanguage;
+    
+b)c) De stad, Populatie van de stad en het percentage aantal mensen die 'German' spreekt.
+
+d) 0,037s
+
+e) 0,00040s (De query is nu door de vorige query opgeslagen in de cache, dan hoeft hij niet
+nogmaals de berekening uit te voeren en kan hij gewoon de gegevens uit de cache trekken)
+
+f) Dat betekent dat hij voor elke tabel alle gegevens bij langs moest om te controleren of de statement overeenkomt.
++------+-------------+------------+------+---------------+------+---------+------+------+--------------------------------------------------------+
+| id   | select_type | table      | type | possible_keys | key  | key_len | ref  | rows | Extra                                                  |
++------+-------------+------------+------+---------------+------+---------+------+------+--------------------------------------------------------+
+|    1 | SIMPLE      | country    | ALL  | NULL          | NULL | NULL    | NULL |  239 | Using temporary; Using filesort                        |
+|    1 | SIMPLE      | language   | ALL  | NULL          | NULL | NULL    | NULL |  984 | Using where; Using join buffer (flat, BNL join)        |
+|    1 | SIMPLE      | city       | ALL  | NULL          | NULL | NULL    | NULL | 8896 | Using where; Using join buffer (incremental, BNL join) |
++------+-------------+------------+------+---------------+------+---------+------+------+--------------------------------------------------------+
+
+g) De tabel city heeft de meeste rows, dus het lijkt mij dat je dan een van de city columns moet indexeren. Sinds city.CountryCode wordt gebruikt in de using zou ik deze indexeren. maar omdat dit foreignkeys zijn moeten ze alle 3 worden geindexeerd. Geen van de 3 gebruikte CountryCode's zijn primaire keys, dus ze moeten alle 3 worden geindexeerd;
+
+h) 
+
+CREATE INDEX i_CountryCode ON city(CountryCode);
+CREATE INDEX i_CountryCode ON country(Code);
+CREATE INDEX i_CountryCode ON countrylanguage(CountryCode);
+
++------+-------------+-------+-------+---------------+---------------+---------+---------------+------+----------------------------------------------+
+| id   | select_type | table | type  | possible_keys | key           | key_len | ref           | rows | Extra                                        |
++------+-------------+-------+-------+---------------+---------------+---------+---------------+------+----------------------------------------------+
+|    1 | SIMPLE      | co    | index | i_CountryCode | i_CountryCode | 12      | NULL          |  239 | Using index; Using temporary; Using filesort |
+|    1 | SIMPLE      | lan   | ref   | i_CountryCode | i_CountryCode | 12      | world.co.Code |    2 | Using where                                  |
+|    1 | SIMPLE      | ci    | ref   | i_CountryCode | i_CountryCode | 12      | world.co.Code |   18 |                                              |
++------+-------------+-------+-------+---------------+---------------+---------+---------------+------+----------------------------------------------+
+
+Hij doet er nu 0,0037s over hij deed er eerst 0,037 sec over. maar de cache kan hier invloed op hebben. Zelfs nadat ik RESET QUERY CACHE; heb uitgevoerd is nogsteeds de tijd 0,0037s
+
+i) De visual explain kan niet worden geopend bij deze query.
+
+# Opdracht 3
+a) Check
+b) 
+SELECT wie AS naam, count(*) as totaal FROM apps GROUP BY wie ORDER BY naam ASC;
++--------------+--------+
+| naam         | totaal |
++--------------+--------+
+| Arna         |     95 |
+| Bart         |     80 |
+| Bjorn        |     83 |
+| Fenna        |     96 |
+| FranÃ§oise   |     87 |
+| Harald       |     82 |
+| Jan          |     98 |
+| Karel        |    101 |
+| Linda        |     98 |
+| Tessa        |     99 |
+| Yfke         |     81 |
++--------------+--------+
+
+c)
+
+SELECT
+    wie,
+    sum(IF(DAYOFWEEK(wanneer) = 1, 1, 0)) as Zondag,
+    sum(IF(DAYOFWEEK(wanneer) = 2, 1, 0)) as Maandag,
+    sum(IF(DAYOFWEEK(wanneer) = 3, 1, 0)) as Dinsdag,
+    sum(IF(DAYOFWEEK(wanneer) = 4, 1, 0)) as Woensdag,
+    sum(IF(DAYOFWEEK(wanneer) = 5, 1, 0)) as Donderdag,
+    sum(IF(DAYOFWEEK(wanneer) = 6, 1, 0)) as Vrijdag,
+    sum(IF(DAYOFWEEK(wanneer) = 7, 1, 0)) as Zaterdag
+        FROM apps GROUP BY wie ORDER BY wie LIMIT 7;
+        
++--------------+--------+---------+---------+----------+-----------+---------+----------+
+| wie          | Zondag | Maandag | Dinsdag | Woensdag | Donderdag | Vrijdag | Zaterdag |
++--------------+--------+---------+---------+----------+-----------+---------+----------+
+| Arna         |     13 |      10 |      15 |       17 |        11 |      17 |       12 |
+| Bart         |     11 |      13 |      10 |       12 |        11 |      12 |       11 |
+| Bjorn        |     12 |      12 |      11 |       10 |        19 |      14 |        5 |
+| Fenna        |     17 |      16 |      14 |       11 |        12 |      13 |       13 |
+| FranÃ§oise   |     12 |       7 |      20 |       13 |        10 |      11 |       14 |
+| Harald       |     13 |      19 |      12 |       10 |         8 |       9 |       11 |
+| Jan          |     15 |      10 |      10 |       15 |        14 |      17 |       17 |
++--------------+--------+---------+---------+----------+-----------+---------+----------+
+
