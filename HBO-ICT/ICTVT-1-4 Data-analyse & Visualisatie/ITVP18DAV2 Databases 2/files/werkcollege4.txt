@@ -1,0 +1,46 @@
+#Opdracht 1
+    delimiter $
+
+    drop function if exists my_report$
+
+    create function my_report (p_year int, p_month int, p_amount decimal(5,2)) returns int 
+    begin
+        declare result int;
+        
+        select count(*) into result from (
+        
+        select sum(amount)
+            from payment
+                where year(payment_date) = p_year
+                    and month(payment_date) = p_month
+                    group by customer_id
+                        having sum(amount) >= p_amount
+        ) as `tabelletje`;
+        
+        return result;
+    end$
+        
+    delimiter ;
+
+
+#Opdracht 2
+    DELIMITER $
+
+    CREATE TRIGGER record_delete_from_film
+    BEFORE DELETE ON film
+    FOR EACH ROW 
+
+    BEGIN
+        INSERT INTO audit_film_delete(film_id, user_name) values (old.film_id, user());
+    END$
+
+    DELIMITER ;
+
+    INSERT INTO film VALUES (1001, 'ACADEMY DINOSAUR 2', 'A Epic Drama of a Feminist And a Mad Scientist who must Battle a Teacher in The Canadian Rockies', 2006, '1', NULL, '6', '0.99', '86', '20.99', 'PG', 'Deleted Scenes,Behind the Scenes', '2006-02-15 05:03:42')
+    
+    DELETE FROM film WHERE film_id = 1001;
+    
+    SELECT  * FROM audit_film_delete;
+    
+#Opdracht 3
+
